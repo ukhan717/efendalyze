@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum AuditStatus {
+  PENDING
+  CRAWLING
+  ANALYZING
+  GENERATING_REPORT
+  COMPLETED
+  FAILED
+}
+
+enum IssueSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+enum IssueCategory {
+  SEO
+  ACCESSIBILITY
+  PERFORMANCE
+  UX_UI
+  CONTENT
+  SECURITY
+  MOBILE
+  BRANDING
+  BUGS
+  TRUST
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model Audit {
+  id              String      @id @default(cuid())
+  userId          String
+  url             String
+  status          AuditStatus @default(PENDING)
+  progress        Int         @default(0) // 0–100
+  errorMessage    String?
+  crawlDepth      Int         @default(3)
+  maxPages        Int         @default(20)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  completedAt     DateTime?
+
+  // Relations
+  pages           AuditPage[]
+  issues          AuditIssue[]
+  scores          AuditScore?
+  report          AuditReport?
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model AuditPage {
+  id              String   @id @default(cuid())
+  auditId         String
+  url             String
+  title           String?
+  metaDescription String?
+  statusCode      Int?
+  loadTimeMs      Int?
+  wordCount       Int?
+
+  // Structured data
+  headings        Json?    // { h1: string[], h2: string[], ... }
+  images          Json?    // { src, alt, width, height }[]
+  links           Json?    // { href, text, isExternal, isBroken }[]
+  forms           Json?    // { action, method, fields }[]
+  structuredData  Json?    // JSON-LD objects
+  metaTags        Json?    // all meta tags
+  consoleErrors   Json?    // browser console errors
+
+  // Screenshots (paths/URLs in storage)
+  screenshotDesktop  String?
+  screenshotMobile   String?
+
+  // Performance
+  fcp             Float?   // First Contentful Paint (ms)
+  lcp             Float?   // Largest Contentful Paint (ms)
+  cls             Float?   // Cumulative Layout Shift
+  tti             Float?   // Time to Interactive (ms)
+  tbt             Float?   // Total Blocking Time (ms)
+  performanceScore Float?
+
+  createdAt       DateTime @default(now())
+
+  // Relations
+  audit           Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  issues          AuditIssue[]
+
+  @@index([auditId])
+}
+
+model AuditIssue {
+  id              String        @id @default(cuid())
+  auditId         String
+  pageId          String?
+  category        IssueCategory
+  severity        IssueSeverity
+  title           String
+  description     String        @db.Text
+  recommendation  String        @db.Text
+  element         String?       // CSS selector or HTML snippet
+  screenshotUrl   String?
+  wcagCriteria    String?       // e.g. "WCAG 2.1 AA 1.4.3"
+  impact          String?       // Estimated business impact
+  effort          String?       // low | medium | high
+  aiGenerated     Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+
+  // Relations
+  audit           Audit         @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  page            AuditPage?    @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([auditId, severity])
+  @@index([auditId, category])
+}
+
+model AuditScore {
+  id              String   @id @default(cuid())
+  auditId         String   @unique
+  overall         Float    // 0–100
+  seo             Float
+  accessibility   Float
+  performance     Float
+  uxUi            Float
+  content         Float
+  trust           Float
+  mobile          Float
+  quickWins       Json?    // string[]
+  criticalIssues  Json?    // string[]
+  createdAt       DateTime @default(now())
+
+  audit           Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+}
+
+model AuditReport {
+  id                String   @id @default(cuid())
+  auditId           String   @unique
+  executiveSummary  String   @db.Text
+  methodology       String   @db.Text
+  keyFindings       Json     // { title, description }[]
+  recommendations   Json     // { priority, title, description, impact }[]
+  aiInsights        Json?    // free-form AI analysis sections
+  pdfUrl            String?
+  htmlUrl           String?
+  generatedAt       DateTime @default(now())
+
+  audit             Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+}
