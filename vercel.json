@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "@efendalyze-database-url",
+    "REDIS_URL": "@efendalyze-redis-url",
+    "OPENAI_API_KEY": "@efendalyze-openai-key",
+    "CLERK_SECRET_KEY": "@efendalyze-clerk-secret"
+  }
+}
