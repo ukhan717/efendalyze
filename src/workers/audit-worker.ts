@@ -9,6 +9,12 @@ if (!process.env.REDIS_URL) {
 
 const connection = new IORedis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null, // Required by BullMQ
+  retryStrategy: (times) => Math.min(times * 500, 5000), // Reconnect on disconnect
+  reconnectOnError: () => true,
+});
+
+connection.on("error", (err) => {
+  console.error("[worker] Redis error (will reconnect):", err.message);
 });
 
 export const AUDIT_QUEUE_NAME = "audit-jobs";
