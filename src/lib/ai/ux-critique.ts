@@ -1,3 +1,4 @@
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { openai, VISION_MODEL } from "./client";
 import type { PageData, AuditIssue, UXCritiqueResult } from "@/types/audit";
 
@@ -48,7 +49,7 @@ Provide your critique in JSON format with this exact structure:
   ]
 }`;
 
-    const messages: OpenAI.ChatCompletionMessageParam[] = [
+    const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: systemPrompt },
     ];
 
