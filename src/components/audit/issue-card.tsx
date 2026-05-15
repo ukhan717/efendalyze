@@ -92,19 +92,7 @@ export default function IssueCard({ issue }: Props) {
             </div>
           )}
 
-          {issue.pageUrl && (
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-white/30">Page</p>
-              <a
-                href={issue.pageUrl as string}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-0.5 block truncate text-xs text-white/60 hover:text-white hover:underline"
-              >
-                {issue.pageUrl as string}
-              </a>
-            </div>
-          )}
+
         </div>
       )}
     </div>
