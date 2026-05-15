@@ -43,7 +43,7 @@
     "ioredis": "^5.4.1",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.414.0",
-    "next": "^15.3.3",
+    "next": "^16.2.6",
     "openai": "^4.55.4",
     "playwright": "^1.46.0",
     "playwright-core": "^1.46.0",
