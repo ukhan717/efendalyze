@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/">
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.variable} font-sans antialiased bg-black text-white`}>
           {children}

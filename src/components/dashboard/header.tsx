@@ -11,7 +11,7 @@ export default function DashboardHeader() {
         <button className="p-2 text-white/30 hover:text-white transition-colors">
           <Bell className="h-4 w-4" />
         </button>
-        <UserButton afterSignOutUrl="/" />
+        <UserButton />
       </div>
     </header>
   );
