@@ -48,6 +48,13 @@ export interface PageData {
   rawHtml: string;
   screenshotDesktop?: string;
   screenshotMobile?: string;
+  // Core Web Vitals — populated by crawler when available
+  fcp?: number | null;
+  lcp?: number | null;
+  cls?: number | null;
+  tti?: number | null;
+  tbt?: number | null;
+  performanceScore?: number | null;
 }
 
 export interface ImageData {
